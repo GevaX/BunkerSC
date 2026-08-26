@@ -74,7 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSubmitModal }) => {
           className={({ isActive }) => mobileNavCls(isActive)}
         >
           <Activity className="w-3.5 h-3.5 text-teal-400" />
-          <span>Live Ticker</span>
+          <span>Activity</span>
         </NavLink>
       </div>
     </header>
