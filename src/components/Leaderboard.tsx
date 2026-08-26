@@ -125,7 +125,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                             : "text-zinc-400"
                       }`}
                     >
-                      {isScorePos ? `+${entry.score}` : entry.score}
+                      {entry.score.toLocaleString("en-US")}
                     </div>
                     <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">
                       Points
