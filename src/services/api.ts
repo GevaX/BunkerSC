@@ -34,7 +34,9 @@ export async function fetchTransactions(): Promise<Transaction[]> {
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("id, recipient_id, points, reason, status, created_at, users(name)")
+    .select(
+      "id, recipient_id, sender, points, reason, status, created_at, users(name)",
+    )
     .order("created_at", { ascending: false });
 
   if (error) {
