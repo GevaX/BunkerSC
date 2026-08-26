@@ -71,11 +71,11 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
           </div>
           <div>
             <h2 className="text-xl font-bold text-zinc-100">
-              Administrator Console
+              Admin Portal
             </h2>
             <p className="text-xs text-zinc-400 mt-1">
               Restricted access for reviewing, approving, and rejecting credit
-              submissions
+              submissions and managing the system
             </p>
           </div>
         </div>
@@ -91,7 +91,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
                 type="password"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
-                placeholder="Enter shared passcode..."
+                placeholder="Enter secret passcode..."
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-zinc-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition placeholder:text-zinc-600"
                 autoFocus
               />
