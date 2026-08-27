@@ -54,6 +54,17 @@ function Layout() {
             <span>Admin Portal</span>
           </button>
         </div>
+        <div className="max-w-7xl mx-auto px-4 mt-4">
+          <p>
+            This code for this project is open-source and available on GitHub.{" "}
+            <a
+              href="https://github.com/GevaX/BunkerSC"
+              className="text-zinc-400 hover:text-emerald-400 transition"
+            >
+              View it here.
+            </a>
+          </p>
+        </div>
       </footer>
 
       <SubmitPointModal

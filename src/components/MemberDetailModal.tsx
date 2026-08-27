@@ -1,6 +1,7 @@
 import React from "react";
 import { X, Clock, Plus, Minus, FileText, ArrowRight } from "lucide-react";
 import type { LeaderboardEntry, Transaction } from "../types";
+import { formatDate } from "../services/utils";
 
 interface MemberDetailModalProps {
   member: LeaderboardEntry | null;
@@ -24,20 +25,6 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   );
   const approvedTxs = memberTransactions.filter((t) => t.status === "approved");
   const pendingTxs = memberTransactions.filter((t) => t.status === "pending");
-
-  const formatDate = (iso: string) => {
-    try {
-      const d = new Date(iso);
-      return d.toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return iso;
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -83,7 +70,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                     : "text-zinc-300"
               }`}
             >
-              {member.score > 0 ? `+${member.score}` : member.score}
+              {member.score.toLocaleString("en-US")}
             </div>
           </div>
 
