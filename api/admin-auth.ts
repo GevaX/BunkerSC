@@ -5,7 +5,7 @@ import {
   buildLogoutCookie,
   verifySessionToken,
   getSessionTokenFromRequest,
-} from "./middleware/session";
+} from "./middleware/session.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // GET: check if the current cookie is still valid
