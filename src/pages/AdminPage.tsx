@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLogin } from "../components/Admin/AdminLogin";
 import { AdminDashboard } from "../components/Admin/AdminDashboard";
@@ -7,22 +7,44 @@ import { useAppData } from "../hooks/useAppData";
 export function AdminPage() {
   const navigate = useNavigate();
   const { users, transactions, reload } = useAppData();
-  const [adminPasscode, setAdminPasscode] = useState<string | null>(() =>
-    sessionStorage.getItem("bunkersc_admin_auth"),
-  );
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
-  const handleAuthSuccess = (passcode: string) => {
-    sessionStorage.setItem("bunkersc_admin_auth", passcode);
-    setAdminPasscode(passcode);
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/admin-auth", { method: "GET", credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) setIsAdmin(Boolean(d.authenticated));
+      })
+      .catch(() => {
+        if (!cancelled) setIsAdmin(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleAuthSuccess = () => {
+    setIsAdmin(true);
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("bunkersc_admin_auth");
-    setAdminPasscode(null);
-    navigate("/");
+    fetch("/api/admin-auth", {
+      method: "DELETE",
+      credentials: "include",
+    }).finally(() => {
+      setIsAdmin(false);
+      navigate("/");
+    });
   };
 
-  if (!adminPasscode) {
+  if (isAdmin === null) {
+    return null;
+  }
+
+  if (!isAdmin) {
     return (
       <AdminLogin
         onSuccess={handleAuthSuccess}
@@ -33,7 +55,6 @@ export function AdminPage() {
 
   return (
     <AdminDashboard
-      passcode={adminPasscode}
       users={users}
       transactions={transactions}
       onRefreshData={() => reload(true)}

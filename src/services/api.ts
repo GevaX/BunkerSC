@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { supabase, isSupabaseConfigured } from "./supabase";
 import type {
   User,
@@ -7,7 +8,7 @@ import type {
 } from "../types";
 
 // ==========================================
-// SUPABASE API METHODS
+// SUPABASE READ METHODS (public, unauthenticated)
 // ==========================================
 
 export async function fetchUsers(): Promise<User[]> {
@@ -44,7 +45,6 @@ export async function fetchTransactions(): Promise<Transaction[]> {
     return [];
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data || []).map((row: any) => ({
     id: row.id,
     recipient_id: row.recipient_id,
@@ -86,13 +86,11 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
     };
   });
 
-  // Sort descending by score, then alphabetical by name
   entries.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
     return a.name.localeCompare(b.name);
   });
 
-  // Assign ranks (1-indexed)
   entries.forEach((item, index) => {
     item.rank = index + 1;
   });
@@ -135,51 +133,60 @@ export async function submitPointRequest(
   return data;
 }
 
+// ==========================================
+// ADMIN MUTATIONS (require an authenticated admin session cookie)
+// ==========================================
+
+class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+async function callAdminAction(body: Record<string, unknown>): Promise<any> {
+  const res = await fetch("/api/admin-action", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include", // send the admin session cookie
+    body: JSON.stringify(body),
+  });
+
+  let data: any = null;
+  try {
+    data = await res.json();
+  } catch {
+    // no JSON body
+  }
+
+  if (!res.ok) {
+    throw new ApiError(
+      data?.error || `Admin action failed (${res.status})`,
+      res.status,
+    );
+  }
+
+  return data;
+}
+
 export async function updateTransactionStatus(
   id: string,
   status: "approved" | "rejected",
-  passcode?: string,
 ): Promise<void> {
-  // Attempt via Serverless API route if deployed on Vercel
-  try {
-    const res = await fetch("/api/admin-action", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "update_status",
-        transactionId: id,
-        status,
-        passcode,
-      }),
-    });
-    if (res.ok) {
-      return;
-    }
-  } catch {
-    // Continue to direct Supabase update
-  }
-
-  if (!isSupabaseConfigured() || !supabase) {
-    throw new Error("Supabase is not configured.");
-  }
-
-  const { error } = await supabase
-    .from("transactions")
-    .update({ status })
-    .eq("id", id);
-
-  if (error) {
-    throw new Error(`Supabase update error: ${error.message}`);
-  }
+  await callAdminAction({
+    action: "update_status",
+    transactionId: id,
+    status,
+  });
 }
 
 export async function batchUpdateTransactionStatus(
   ids: string[],
   status: "approved" | "rejected",
-  passcode?: string,
 ): Promise<void> {
   for (const id of ids) {
-    await updateTransactionStatus(id, status, passcode);
+    await updateTransactionStatus(id, status);
   }
 }
 
@@ -187,27 +194,16 @@ export async function addUser(name: string): Promise<User> {
   const cleanName = name.trim();
   if (!cleanName) throw new Error("Name cannot be empty");
 
-  if (!isSupabaseConfigured() || !supabase) {
-    throw new Error("Supabase is not configured.");
-  }
-
-  const { data, error } = await supabase
-    .from("users")
-    .insert({ name: cleanName })
-    .select("id, name")
-    .single();
-
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data;
+  const data = await callAdminAction({
+    action: "add_user",
+    userName: cleanName,
+  });
+  return data.data as User;
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  if (!isSupabaseConfigured() || !supabase) {
-    throw new Error("Supabase is not configured.");
-  }
-
-  const { error } = await supabase.from("users").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+  await callAdminAction({
+    action: "delete_user",
+    userId: id,
+  });
 }

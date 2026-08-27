@@ -14,7 +14,6 @@ import { RosterTab } from "./tabs/RosterTab";
 import { CheckCircle2 } from "lucide-react";
 
 interface AdminDashboardProps {
-  passcode: string;
   users: User[];
   transactions: Transaction[];
   onRefreshData: () => Promise<void>;
@@ -23,7 +22,6 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
-  passcode,
   users,
   transactions,
   onRefreshData,
@@ -44,13 +42,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
+  const handleSessionExpired = () => {
+    alert("Your admin session has expired. Please log in again.");
+    onLogout();
+  };
+
   const handleApprove = async (id: string) => {
     setActionLoadingId(id);
     try {
-      await updateTransactionStatus(id, "approved", passcode);
+      await updateTransactionStatus(id, "approved");
       await onRefreshData();
       showToast("Transaction approved and leaderboard updated!");
     } catch (err: any) {
+      if (err?.status === 401) return handleSessionExpired();
       alert(`Error approving: ${err.message}`);
     } finally {
       setActionLoadingId(null);
@@ -60,10 +64,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleReject = async (id: string) => {
     setActionLoadingId(id);
     try {
-      await updateTransactionStatus(id, "rejected", passcode);
+      await updateTransactionStatus(id, "rejected");
       await onRefreshData();
       showToast("Transaction rejected and discarded from standings.");
     } catch (err: any) {
+      if (err?.status === 401) return handleSessionExpired();
       alert(`Error rejecting: ${err.message}`);
     } finally {
       setActionLoadingId(null);
@@ -82,10 +87,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setIsBatchLoading(true);
     try {
       const ids = pendingTransactions.map((t) => t.id);
-      await batchUpdateTransactionStatus(ids, "approved", passcode);
+      await batchUpdateTransactionStatus(ids, "approved");
       await onRefreshData();
       showToast(`All ${ids.length} requests approved!`);
     } catch (err: any) {
+      if (err?.status === 401) return handleSessionExpired();
       alert(`Batch error: ${err.message}`);
     } finally {
       setIsBatchLoading(false);
@@ -104,10 +110,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setIsBatchLoading(true);
     try {
       const ids = pendingTransactions.map((t) => t.id);
-      await batchUpdateTransactionStatus(ids, "rejected", passcode);
+      await batchUpdateTransactionStatus(ids, "rejected");
       await onRefreshData();
       showToast(`All ${ids.length} requests rejected.`);
     } catch (err: any) {
+      if (err?.status === 401) return handleSessionExpired();
       alert(`Batch error: ${err.message}`);
     } finally {
       setIsBatchLoading(false);
@@ -115,9 +122,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleAddMember = async (name: string) => {
-    await addUser(name);
-    await onRefreshData();
-    showToast(`Added "${name}" to group roster.`);
+    try {
+      await addUser(name);
+      await onRefreshData();
+      showToast(`Added "${name}" to group roster.`);
+    } catch (err: any) {
+      if (err?.status === 401) return handleSessionExpired();
+      alert(`Error adding member: ${err.message}`);
+    }
   };
 
   const handleDeleteMember = async (userId: string, userName: string) => {
@@ -134,6 +146,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       await onRefreshData();
       showToast(`Removed "${userName}" from group.`);
     } catch (err: any) {
+      if (err?.status === 401) return handleSessionExpired();
       alert(`Error deleting member: ${err.message}`);
     }
   };

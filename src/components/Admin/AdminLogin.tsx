@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Lock, KeyRound, ArrowRight, AlertCircle } from "lucide-react";
 
 interface AdminLoginProps {
-  onSuccess: (passcode: string) => void;
+  onSuccess: () => void;
   onCancel: () => void;
 }
 
@@ -26,39 +26,26 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
     setIsLoading(true);
 
     try {
-      // First attempt validation via Vercel serverless function
       const response = await fetch("/api/admin-auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // ensures the Set-Cookie is stored
         body: JSON.stringify({ passcode: passcode.trim() }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          onSuccess(passcode.trim());
-          return;
-        }
-      } else if (response.status === 401) {
-        setErrorMsg("Invalid administrative passcode.");
-        setIsLoading(false);
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        onSuccess();
         return;
       }
+
+      setErrorMsg(data.error || "Invalid administrative passcode.");
     } catch {
-      // If serverless endpoint is not reachable during local dev, verify against environment passcode
+      setErrorMsg("Could not reach the server. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    // Client fallback check for development
-    const clientEnvPasscode = import.meta.env.VITE_ADMIN_PASSCODE;
-    if (passcode.trim() === clientEnvPasscode) {
-      onSuccess(passcode.trim());
-    } else {
-      setErrorMsg(
-        "Invalid administrative passcode. Please verify credentials.",
-      );
-    }
-
-    setIsLoading(false);
   };
 
   return (
@@ -70,9 +57,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
             <Lock className="w-8 h-8" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-zinc-100">
-              Admin Portal
-            </h2>
+            <h2 className="text-xl font-bold text-zinc-100">Admin Portal</h2>
             <p className="text-xs text-zinc-400 mt-1">
               Restricted access for reviewing, approving, and rejecting credit
               submissions and managing the system

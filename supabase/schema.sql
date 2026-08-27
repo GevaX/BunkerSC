@@ -39,18 +39,6 @@ CREATE POLICY "Public read access to users"
   ON public.users FOR SELECT
   USING (true);
 
-CREATE POLICY "Public insert users"
-  ON public.users FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Public update users"
-  ON public.users FOR UPDATE
-  USING (true);
-
-CREATE POLICY "Public delete users"
-  ON public.users FOR DELETE
-  USING (true);
-
 -- TRANSACTIONS POLICIES
 CREATE POLICY "Public read access to transactions"
   ON public.transactions FOR SELECT
@@ -59,11 +47,3 @@ CREATE POLICY "Public read access to transactions"
 CREATE POLICY "Public insert pending transactions"
   ON public.transactions FOR INSERT
   WITH CHECK (status = 'pending');
-
-CREATE POLICY "Allow updating transaction status"
-  ON public.transactions FOR UPDATE
-  USING (true);
-
-CREATE POLICY "Allow deleting transactions"
-  ON public.transactions FOR DELETE
-  USING (true);
