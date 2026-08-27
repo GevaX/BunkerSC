@@ -23,8 +23,6 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   const memberTransactions = transactions.filter(
     (t) => t.recipient_id === member.id,
   );
-  const approvedTxs = memberTransactions.filter((t) => t.status === "approved");
-  const pendingTxs = memberTransactions.filter((t) => t.status === "pending");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -56,7 +54,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
         </div>
 
         {/* Score Stats Ribbon */}
-        <div className="grid grid-cols-3 gap-2 px-6 py-3 bg-zinc-950/30 border-b border-zinc-800/80 text-center">
+        <div className="grid grid-cols-2 gap-2 px-6 py-3 bg-zinc-950/30 border-b border-zinc-800/80 text-center">
           <div className="p-2 rounded-lg bg-zinc-900/80 border border-zinc-800">
             <span className="text-[11px] text-zinc-400 font-medium">
               Total Score
@@ -79,16 +77,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
               Approved Actions
             </span>
             <div className="text-lg font-black font-mono text-zinc-200">
-              {approvedTxs.length}
-            </div>
-          </div>
-
-          <div className="p-2 rounded-lg bg-zinc-900/80 border border-zinc-800">
-            <span className="text-[11px] text-zinc-400 font-medium">
-              Under Review
-            </span>
-            <div className="text-lg font-black font-mono text-amber-400">
-              {pendingTxs.length}
+              {memberTransactions.length}
             </div>
           </div>
         </div>
@@ -112,7 +101,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                   return (
                     <div
                       key={tx.id}
-                      className="flex items-start justify-between p-3 rounded-xl bg-zinc-950/50 border border-zinc-800/80 hover:border-zinc-700 transition"
+                      className="flex items-center justify-between p-3 rounded-xl bg-zinc-950/50 border border-zinc-800/80 hover:border-zinc-700 transition"
                     >
                       <div className="flex items-start space-x-3">
                         <div
@@ -135,18 +124,6 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                           <div className="flex items-center space-x-2 text-[11px] text-zinc-500">
                             <Clock className="w-3 h-3" />
                             <span>{formatDate(tx.created_at)}</span>
-                            <span>•</span>
-                            <span
-                              className={`font-semibold capitalize ${
-                                tx.status === "approved"
-                                  ? "text-emerald-400"
-                                  : tx.status === "pending"
-                                    ? "text-amber-400"
-                                    : "text-rose-400"
-                              }`}
-                            >
-                              {tx.status}
-                            </span>
                           </div>
                         </div>
                       </div>
