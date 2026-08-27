@@ -142,6 +142,11 @@ async function callAdminAction(body: Record<string, unknown>): Promise<any> {
   return data;
 }
 
+export async function fetchAdminTransactions(): Promise<Transaction[]> {
+  const data = await callAdminAction({ action: "fetch_transactions" });
+  return (data.data || []) as Transaction[];
+}
+
 export async function updateTransactionStatus(
   id: string,
   status: "approved" | "rejected",

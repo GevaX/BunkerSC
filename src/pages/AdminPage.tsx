@@ -3,11 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { AdminLogin } from "../components/Admin/AdminLogin";
 import { AdminDashboard } from "../components/Admin/AdminDashboard";
 import { useAppData } from "../hooks/useAppData";
+import { fetchAdminTransactions } from "../services/api";
+import type { Transaction } from "../types";
 
 export function AdminPage() {
   const navigate = useNavigate();
   const { users, transactions, reload } = useAppData();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [adminTransactions, setAdminTransactions] = useState<
+    Transaction[] | null
+  >(null);
+
+  const reloadAdminTransactions = async () => {
+    setAdminTransactions(await fetchAdminTransactions());
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -15,7 +24,11 @@ export function AdminPage() {
     fetch("/api/admin-auth", { method: "GET", credentials: "include" })
       .then((r) => r.json())
       .then((d) => {
-        if (!cancelled) setIsAdmin(Boolean(d.authenticated));
+        if (cancelled) return;
+
+        const authenticated = Boolean(d.authenticated);
+        setIsAdmin(authenticated);
+        if (authenticated) void reloadAdminTransactions();
       })
       .catch(() => {
         if (!cancelled) setIsAdmin(false);
@@ -28,6 +41,7 @@ export function AdminPage() {
 
   const handleAuthSuccess = () => {
     setIsAdmin(true);
+    void reloadAdminTransactions();
   };
 
   const handleLogout = () => {
@@ -56,8 +70,11 @@ export function AdminPage() {
   return (
     <AdminDashboard
       users={users}
-      transactions={transactions}
-      onRefreshData={() => reload(true)}
+      transactions={adminTransactions ?? transactions}
+      onRefreshData={async () => {
+        await reload(true);
+        await reloadAdminTransactions();
+      }}
       onLogout={handleLogout}
       onReturnToLeaderboard={() => navigate("/")}
     />

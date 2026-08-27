@@ -30,6 +30,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
+    if (action === "fetch_transactions") {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select(
+          "id, recipient_id, sender, points, reason, status, created_at, users(name)",
+        )
+        .order("created_at", { ascending: false });
+      if (error) {
+        console.error("Error fetching transactions from Supabase:", error);
+        return [];
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const transactions = (data || []).map((row: any) => ({
+        id: row.id,
+        recipient_id: row.recipient_id,
+        sender: row.sender,
+        points: row.points,
+        reason: row.reason,
+        status: row.status,
+        created_at: row.created_at,
+        recipient_name: row.users?.name || "Unknown",
+      }));
+
+      return res.status(200).json({ success: true, data: transactions });
+    }
+
     if (action === "update_status" && transactionId && status) {
       const { error } = await supabase
         .from("transactions")
