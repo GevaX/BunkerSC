@@ -126,9 +126,11 @@ export const PendingQueueTab: React.FC<PendingQueueTabProps> = ({
                     {tx.reason}
                   </p>
 
-                  <p className="text-xs text-zinc-400 leading-relaxed pl-9">
-                    | {tx.sender}
-                  </p>
+                  {tx.sender && (
+                    <p className="text-xs text-zinc-400 leading-relaxed pl-9">
+                      | {tx.sender}
+                    </p>
+                  )}
 
                   <div className="flex items-center space-x-2 text-[11px] text-zinc-500 pl-9">
                     <Clock className="w-3 h-3" />
