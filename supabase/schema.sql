@@ -42,7 +42,7 @@ CREATE POLICY "Public read access to users"
 -- TRANSACTIONS POLICIES
 CREATE POLICY "Public read access to transactions"
   ON public.transactions FOR SELECT
-  USING (true);
+  WITH CHECK (status = 'approved');
 
 CREATE POLICY "Public insert pending transactions"
   ON public.transactions FOR INSERT
