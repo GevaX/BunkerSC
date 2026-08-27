@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Lock, KeyRound, ArrowRight, AlertCircle } from "lucide-react";
+import {
+  Lock,
+  KeyRound,
+  ArrowRight,
+  AlertCircle,
+  EyeOff,
+  Eye,
+} from "lucide-react";
 
 interface AdminLoginProps {
   onSuccess: () => void;
@@ -11,6 +18,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
   onCancel,
 }) => {
   const [passcode, setPasscode] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -73,13 +81,24 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
             <div className="relative">
               <KeyRound className="w-4 h-4 absolute left-3.5 top-3.5 text-zinc-500" />
               <input
-                type="password"
+                type={passwordVisible ? "text" : "password"}
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
                 placeholder="Enter secret passcode..."
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-zinc-100 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition placeholder:text-zinc-600"
                 autoFocus
               />
+              <button
+                type="button"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+                className="absolute right-3.5 top-3.5 text-zinc-500 hover:text-zinc-300 transition"
+              >
+                {passwordVisible ? (
+                  <Eye className="w-4 h-4" />
+                ) : (
+                  <EyeOff className="w-4 h-4" />
+                )}
+              </button>
             </div>
           </div>
 
