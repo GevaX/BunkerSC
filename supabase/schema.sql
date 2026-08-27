@@ -47,3 +47,26 @@ CREATE POLICY "Public read access to transactions"
 CREATE POLICY "Public insert pending transactions"
   ON public.transactions FOR INSERT
   WITH CHECK (status = 'pending');
+
+-- LEADERBOARD VIEW
+
+CREATE OR REPLACE VIEW public.leaderboard AS
+SELECT
+  u.id,
+  u.name,
+  COALESCE(
+    SUM(t.points) FILTER (WHERE t.status = 'approved'),
+    0
+  )::INTEGER AS score,
+  ROW_NUMBER() OVER (
+    ORDER BY
+      COALESCE(
+        SUM(t.points) FILTER (WHERE t.status = 'approved'),
+        0
+      ) DESC,
+      u.name ASC
+  )::INTEGER AS rank
+FROM public.users u
+LEFT JOIN public.transactions t
+  ON t.recipient_id = u.id
+GROUP BY u.id, u.name;

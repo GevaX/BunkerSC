@@ -58,44 +58,21 @@ export async function fetchTransactions(): Promise<Transaction[]> {
 }
 
 export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
-  const [users, transactions] = await Promise.all([
-    fetchUsers(),
-    fetchTransactions(),
-  ]);
+  if (!isSupabaseConfigured() || !supabase) {
+    return [];
+  }
 
-  const scoreMap = new Map<string, number>();
+  const { data, error } = await supabase
+    .from("leaderboard")
+    .select("id, name, score, rank")
+    .order("rank", { ascending: true });
 
-  users.forEach((u) => {
-    scoreMap.set(u.id, 0);
-  });
+  if (error) {
+    console.error("Error fetching leaderboard from Supabase:", error);
+    return [];
+  }
 
-  transactions.forEach((tx) => {
-    if (tx.status === "approved") {
-      const currentScore = scoreMap.get(tx.recipient_id) || 0;
-      scoreMap.set(tx.recipient_id, currentScore + Number(tx.points));
-    }
-  });
-
-  const entries: LeaderboardEntry[] = users.map((u) => {
-    const score = scoreMap.get(u.id) || 0;
-    return {
-      id: u.id,
-      name: u.name,
-      score,
-      rank: 0,
-    };
-  });
-
-  entries.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    return a.name.localeCompare(b.name);
-  });
-
-  entries.forEach((item, index) => {
-    item.rank = index + 1;
-  });
-
-  return entries;
+  return data || [];
 }
 
 export async function submitPointRequest(
