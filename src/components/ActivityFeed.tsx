@@ -165,6 +165,9 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
                     <Clock className="w-3 h-3" />
                     <span>{formatRelativeTime(tx.created_at)}</span>
                   </div>
+                  <div>
+                    <span>{tx.sender}</span>
+                  </div>
                 </div>
               </div>
             );
