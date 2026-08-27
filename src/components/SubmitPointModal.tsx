@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { X, Send, AlertCircle, CheckCircle2, ChevronDown } from "lucide-react";
+import { X, Send, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 import type { User } from "../types";
 import { submitPointRequest } from "../services/api";
 
@@ -132,24 +140,35 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
             <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-300">
               Group Member Recipient
             </label>
-            <div className="relative">
-              <select
-                value={recipientId}
-                onChange={(e) => setRecipientId(e.target.value)}
-                className="w-full appearance-none px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-zinc-100 text-sm font-medium focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
-              >
-                {users.length === 0 ? (
-                  <option value="">No members found in system</option>
-                ) : (
-                  users.map((u) => (
-                    <option key={u.id} value={u.id}>
+            <Combobox
+              items={users}
+              itemToStringLabel={(u: User) => u?.name ?? ""}
+              value={users.find((u) => u.id === recipientId) ?? null}
+              onValueChange={(u: User | null) => setRecipientId(u?.id ?? "")}
+            >
+              <ComboboxInput
+                placeholder="Select a member"
+                className="border-zinc-700/80 bg-zinc-950 rounded-xl focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500
+        [&_input]:bg-zinc-950! [&_input]:text-zinc-100! [&_input]:text-sm! [&_input]:placeholder:text-zinc-600!
+        [&_button]:text-zinc-400! [&_button:hover]:text-zinc-100! [&_button:hover]:bg-zinc-800!"
+              />
+              <ComboboxContent className="bg-zinc-900 border border-zinc-700/80 rounded-xl shadow-2xl">
+                <ComboboxEmpty className="text-zinc-500 text-sm">
+                  No members found.
+                </ComboboxEmpty>
+                <ComboboxList>
+                  {(u: User) => (
+                    <ComboboxItem
+                      key={u.id}
+                      value={u}
+                      className="text-zinc-100 text-sm rounded-lg data-highlighted:bg-emerald-500/15 data-highlighted:text-emerald-300"
+                    >
                       {u.name}
-                    </option>
-                  ))
-                )}
-              </select>
-              <ChevronDown className="absolute right-3.5 top-3 w-4 h-4 text-zinc-400 pointer-events-none" />
-            </div>
+                    </ComboboxItem>
+                  )}
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
           </div>
 
           {/* Sender Field */}
