@@ -65,7 +65,11 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
       setErrorMsg("Please select a recipient group member.");
       return;
     }
-    if (isNaN(numericPoints) || numericPoints === 0) {
+    if (
+      isNaN(numericPoints) ||
+      numericPoints === 0 ||
+      !Number.isInteger(numericPoints)
+    ) {
       setErrorMsg(
         "Points must be a non-zero integer (positive for reward, negative for penalty).",
       );
