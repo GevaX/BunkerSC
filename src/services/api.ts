@@ -77,7 +77,7 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
 
 export async function submitPointRequest(
   input: SubmitPointInput,
-): Promise<Transaction> {
+): Promise<void> {
   const points = Math.round(Number(input.points));
   if (isNaN(points)) {
     throw new Error("Point value must be a valid integer");
@@ -92,22 +92,17 @@ export async function submitPointRequest(
     );
   }
 
-  const { data, error } = await supabase
-    .from("transactions")
-    .insert({
-      recipient_id: input.recipient_id,
-      sender: input.sender.trim(),
-      points,
-      reason: input.reason.trim(),
-      status: "pending",
-    })
-    .select("id, recipient_id, sender, points, reason, status, created_at")
-    .single();
+  const { error } = await supabase.from("transactions").insert({
+    recipient_id: input.recipient_id,
+    sender: input.sender.trim(),
+    points,
+    reason: input.reason.trim(),
+    status: "pending",
+  });
 
   if (error) {
     throw new Error(`Failed to submit request: ${error.message}`);
   }
-  return data;
 }
 
 // ==========================================
