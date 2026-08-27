@@ -15,7 +15,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ success: false, error: "Not authenticated" });
   }
 
-  const { action, transactionId, status, userId, userName } = req.body || {};
+  const { action, transactionId, status, awardedPoints, userId, userName } =
+    req.body || {};
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -34,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { data, error } = await supabase
         .from("transactions")
         .select(
-          "id, recipient_id, sender, points, reason, status, created_at, users(name)",
+          "id, recipient_id, sender, points, awarded_points, reason, status, created_at, users(name)",
         )
         .order("created_at", { ascending: false });
       if (error) {
@@ -48,6 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         recipient_id: row.recipient_id,
         sender: row.sender,
         points: row.points,
+        awarded_points: row.awarded_points,
         reason: row.reason,
         status: row.status,
         created_at: row.created_at,
@@ -58,9 +60,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (action === "update_status" && transactionId && status) {
+      if (
+        status === "approved" &&
+        (!Number.isInteger(awardedPoints) || awardedPoints === null)
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "A valid awarded point amount is required for approval.",
+        });
+      }
+
+      const update =
+        status === "approved"
+          ? { status, awarded_points: awardedPoints }
+          : { status };
       const { error } = await supabase
         .from("transactions")
-        .update({ status })
+        .update(update)
         .eq("id", transactionId);
       if (error) throw error;
       return res

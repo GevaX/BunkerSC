@@ -27,8 +27,9 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
   const approvedTxs = transactions.filter((t) => t.status === "approved");
 
   const filtered = approvedTxs.filter((tx) => {
-    if (filterType === "positive" && tx.points <= 0) return false;
-    if (filterType === "negative" && tx.points >= 0) return false;
+    const awardedPoints = tx.awarded_points ?? tx.points;
+    if (filterType === "positive" && awardedPoints <= 0) return false;
+    if (filterType === "negative" && awardedPoints >= 0) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const nameMatch = (tx.recipient_name || "").toLowerCase().includes(q);
@@ -118,7 +119,10 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {filtered.map((tx) => {
-            const isPos = tx.points >= 0;
+            const awardedPoints = tx.awarded_points ?? tx.points;
+            const isPos = awardedPoints >= 0;
+            const wasModified =
+              tx.awarded_points != null && tx.awarded_points !== tx.points;
             return (
               <div
                 key={tx.id}
@@ -151,7 +155,14 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
                       ) : (
                         <Minus className="w-3 h-3" />
                       )}
-                      <span>{Math.abs(tx.points)}</span>
+                      <span>
+                        {wasModified && (
+                          <span className="mr-1 text-zinc-500 line-through">
+                            {Math.abs(tx.points)}
+                          </span>
+                        )}
+                        {Math.abs(awardedPoints)}
+                      </span>
                     </div>
                   </div>
 

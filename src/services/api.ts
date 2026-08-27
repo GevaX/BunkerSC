@@ -36,7 +36,7 @@ export async function fetchTransactions(): Promise<Transaction[]> {
   const { data, error } = await supabase
     .from("transactions")
     .select(
-      "id, recipient_id, sender, points, reason, status, created_at, users(name)",
+      "id, recipient_id, sender, points, awarded_points, reason, status, created_at, users(name)",
     )
     .order("created_at", { ascending: false });
 
@@ -50,6 +50,7 @@ export async function fetchTransactions(): Promise<Transaction[]> {
     recipient_id: row.recipient_id,
     sender: row.sender,
     points: row.points,
+    awarded_points: row.awarded_points,
     reason: row.reason,
     status: row.status,
     created_at: row.created_at,
@@ -150,20 +151,23 @@ export async function fetchAdminTransactions(): Promise<Transaction[]> {
 export async function updateTransactionStatus(
   id: string,
   status: "approved" | "rejected",
+  awardedPoints?: number,
 ): Promise<void> {
   await callAdminAction({
     action: "update_status",
     transactionId: id,
     status,
+    ...(status === "approved" && { awardedPoints }),
   });
 }
 
 export async function batchUpdateTransactionStatus(
   ids: string[],
   status: "approved" | "rejected",
+  awardedPoints?: number[],
 ): Promise<void> {
-  for (const id of ids) {
-    await updateTransactionStatus(id, status);
+  for (const [index, id] of ids.entries()) {
+    await updateTransactionStatus(id, status, awardedPoints?.[index]);
   }
 }
 

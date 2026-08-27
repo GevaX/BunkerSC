@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS public.transactions (
   recipient_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   sender TEXT,
   points INTEGER NOT NULL,
+  awarded_points INTEGER,
   reason TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -55,13 +56,13 @@ SELECT
   u.id,
   u.name,
   COALESCE(
-    SUM(t.points) FILTER (WHERE t.status = 'approved'),
+    SUM(COALESCE(t.awarded_points, t.points)) FILTER (WHERE t.status = 'approved'),
     0
   )::INTEGER AS score,
   ROW_NUMBER() OVER (
     ORDER BY
       COALESCE(
-        SUM(t.points) FILTER (WHERE t.status = 'approved'),
+        SUM(COALESCE(t.awarded_points, t.points)) FILTER (WHERE t.status = 'approved'),
         0
       ) DESC,
       u.name ASC

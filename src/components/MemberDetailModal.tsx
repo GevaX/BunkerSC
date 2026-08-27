@@ -104,7 +104,10 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
             ) : (
               <div className="space-y-2.5">
                 {memberTransactions.map((tx) => {
-                  const isPos = tx.points >= 0;
+                  const awardedPoints = tx.awarded_points ?? tx.points;
+                  const isPos = awardedPoints >= 0;
+                  const wasModified =
+                    tx.awarded_points && tx.awarded_points !== tx.points;
                   return (
                     <div
                       key={tx.id}
@@ -142,7 +145,12 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                             : "bg-rose-500/10 text-rose-300 border-rose-500/20"
                         }`}
                       >
-                        {isPos ? `+${tx.points}` : tx.points}
+                        {wasModified && (
+                          <span className="mr-1 text-zinc-500 line-through">
+                            {isPos ? `+${tx.points}` : tx.points}
+                          </span>
+                        )}
+                        {isPos ? `+${awardedPoints}` : awardedPoints}
                       </div>
                     </div>
                   );

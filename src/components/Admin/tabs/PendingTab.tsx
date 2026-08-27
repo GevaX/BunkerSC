@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Check, X, Clock, Plus, Minus, CheckCircle2 } from "lucide-react";
 import type { Transaction } from "../../../types";
 import { formatDate } from "../../../services/utils";
@@ -7,7 +7,7 @@ interface PendingQueueTabProps {
   pendingTransactions: Transaction[];
   actionLoadingId: string | null;
   isBatchLoading: boolean;
-  onApprove: (id: string) => void;
+  onApprove: (id: string, awardedPoints?: number) => void;
   onReject: (id: string) => void;
   onBatchApproveAll: () => void;
   onBatchRejectAll: () => void;
@@ -22,6 +22,8 @@ export const PendingQueueTab: React.FC<PendingQueueTabProps> = ({
   onBatchApproveAll,
   onBatchRejectAll,
 }) => {
+  const [awardAmounts, setAwardAmounts] = useState<Record<string, string>>({});
+
   return (
     <div className="space-y-4">
       {/* Header with Batch Controls */}
@@ -75,8 +77,12 @@ export const PendingQueueTab: React.FC<PendingQueueTabProps> = ({
       ) : (
         <div className="space-y-3">
           {pendingTransactions.map((tx) => {
-            const isPos = tx.points >= 0;
+            const awardedPoints = tx.awarded_points ?? tx.points;
+            const isPos = awardedPoints >= 0;
+            const wasModified =
+              tx.awarded_points != null && tx.awarded_points !== tx.points;
             const isLoading = actionLoadingId === tx.id;
+            const awardAmount = awardAmounts[tx.id] ?? String(tx.points);
 
             return (
               <div
@@ -105,7 +111,14 @@ export const PendingQueueTab: React.FC<PendingQueueTabProps> = ({
                       ) : (
                         <Minus className="w-3 h-3" />
                       )}
-                      <span>{Math.abs(tx.points)} pts</span>
+                      <span>
+                        {wasModified && (
+                          <span className="mr-1 text-zinc-500 line-through">
+                            {Math.abs(tx.points)}
+                          </span>
+                        )}
+                        {Math.abs(awardedPoints)} pts
+                      </span>
                     </div>
                   </div>
 
@@ -124,10 +137,32 @@ export const PendingQueueTab: React.FC<PendingQueueTabProps> = ({
                 </div>
 
                 {/* Right: Actions */}
-                <div className="flex items-center space-x-2 shrink-0 self-end sm:self-center">
+                <div className="flex items-end space-x-2 shrink-0 self-end sm:self-center">
+                  <label className="flex flex-col gap-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                    Awarded points
+                    <input
+                      type="number"
+                      value={awardAmount}
+                      onChange={(event) =>
+                        setAwardAmounts((current) => ({
+                          ...current,
+                          [tx.id]: event.target.value,
+                        }))
+                      }
+                      disabled={isLoading || isBatchLoading}
+                      className="[appearance:textfield] text-center w-24 rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-2 text-sm font-mono text-zinc-100 focus:border-emerald-500 focus:outline-none"
+                    />
+                  </label>
                   <button
-                    onClick={() => onApprove(tx.id)}
-                    disabled={isLoading || isBatchLoading}
+                    onClick={() => {
+                      const parsedAmount = Number(awardAmount);
+                      if (!Number.isInteger(parsedAmount)) {
+                        alert("Awarded points must be a whole number.");
+                        return;
+                      }
+                      onApprove(tx.id, parsedAmount);
+                    }}
+                    disabled={isLoading || isBatchLoading || awardAmount === ""}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold transition shadow-lg shadow-emerald-950/50 cursor-pointer active:scale-95"
                   >
                     <Check className="w-4 h-4" />

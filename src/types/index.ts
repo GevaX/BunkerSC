@@ -10,6 +10,7 @@ export interface Transaction {
   recipient_id: string;
   sender: string;
   points: number;
+  awarded_points?: number;
   reason: string;
   status: TransactionStatus;
   created_at: string;

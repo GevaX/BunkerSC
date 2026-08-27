@@ -47,10 +47,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     onLogout();
   };
 
-  const handleApprove = async (id: string) => {
+  const handleApprove = async (id: string, awardedPoints?: number) => {
     setActionLoadingId(id);
     try {
-      await updateTransactionStatus(id, "approved");
+      const transaction = transactions.find((item) => item.id === id);
+      await updateTransactionStatus(
+        id,
+        "approved",
+        awardedPoints ?? transaction?.points,
+      );
       await onRefreshData();
       showToast("Transaction approved and leaderboard updated!");
     } catch (err: any) {
@@ -87,7 +92,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setIsBatchLoading(true);
     try {
       const ids = pendingTransactions.map((t) => t.id);
-      await batchUpdateTransactionStatus(ids, "approved");
+      await batchUpdateTransactionStatus(
+        ids,
+        "approved",
+        pendingTransactions.map((t) => t.points),
+      );
       await onRefreshData();
       showToast(`All ${ids.length} requests approved!`);
     } catch (err: any) {
