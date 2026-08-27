@@ -1,5 +1,12 @@
 import React from "react";
-import { X, Clock, Plus, Minus, FileText, ArrowRight } from "lucide-react";
+import {
+  X,
+  Clock,
+  FileText,
+  ArrowRight,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import type { LeaderboardEntry, Transaction } from "../types";
 import { formatDate } from "../services/utils";
 
@@ -112,9 +119,9 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                           }`}
                         >
                           {isPos ? (
-                            <Plus className="w-3.5 h-3.5" />
+                            <ArrowUp className="w-3.5 h-3.5" />
                           ) : (
-                            <Minus className="w-3.5 h-3.5" />
+                            <ArrowDown className="w-3.5 h-3.5" />
                           )}
                         </div>
                         <div className="space-y-0.5">
