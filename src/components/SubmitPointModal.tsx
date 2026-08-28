@@ -41,6 +41,20 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
     }
   }, [defaultRecipientId]);
 
+  const resetForm = () => {
+    setRecipientId("");
+    setSender("");
+    setPoints(100);
+    setReason("");
+    setErrorMsg(null);
+    setSuccessMsg(null);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   const quickPresets = [
@@ -94,9 +108,7 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
       );
       setTimeout(() => {
         onSuccess();
-        onClose();
-        setReason("");
-        setPoints(100);
+        handleClose();
       }, 3000);
     } catch (err: unknown) {
       const message =
@@ -284,7 +296,7 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
           <div className="flex items-center justify-end space-x-3 pt-2">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isSubmitting}
               className="px-4 py-2 text-xs font-semibold rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition cursor-pointer"
             >
