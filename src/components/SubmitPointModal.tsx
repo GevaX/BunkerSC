@@ -38,10 +38,8 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
     if (defaultRecipientId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRecipientId(defaultRecipientId);
-    } else if (users.length > 0 && !recipientId) {
-      setRecipientId(users[0].id);
     }
-  }, [defaultRecipientId, users]);
+  }, [defaultRecipientId]);
 
   if (!isOpen) return null;
 
@@ -99,7 +97,7 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
         onClose();
         setReason("");
         setPoints(100);
-      }, 1400);
+      }, 3000);
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Internal server error";
