@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { LeaderboardEntry, Transaction } from "../types";
 import { formatDate } from "../services/utils";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface MemberDetailModalProps {
   member: LeaderboardEntry | null;
@@ -25,6 +26,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
   onClose,
   onOpenSubmitForMember,
 }) => {
+  useEscapeKey(onClose);
   if (!isOpen || !member) return null;
 
   const memberTransactions = transactions.filter(

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/combobox";
 import type { User } from "../types";
 import { submitPointRequest } from "../services/api";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface SubmitPointModalProps {
   isOpen: boolean;
@@ -33,6 +34,8 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  useEscapeKey(onClose);
 
   useEffect(() => {
     if (defaultRecipientId) {
