@@ -59,6 +59,7 @@ function Layout() {
             This code for this project is open-source and available on GitHub.{" "}
             <a
               href="https://github.com/GevaX/BunkerSC"
+              target="_blank"
               className="text-zinc-400 hover:text-emerald-400 transition"
             >
               View it here.
