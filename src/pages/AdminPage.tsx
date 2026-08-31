@@ -19,6 +19,19 @@ export function AdminPage() {
   };
 
   useEffect(() => {
+    if (!isAdmin) return;
+
+    let cancelled = false;
+    void fetchAdminTransactions().then((data) => {
+      if (!cancelled) setAdminTransactions(data);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAdmin, transactions]);
+
+  useEffect(() => {
     let cancelled = false;
 
     fetch("/api/admin-auth", { method: "GET", credentials: "include" })
