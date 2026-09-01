@@ -217,7 +217,13 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
                       : "bg-zinc-800 text-zinc-400"
                 }`}
               >
-                {quickPresets.find((preset) => preset.value === points)?.label}
+                {quickPresets.find((preset) => preset.value === points)
+                  ?.label ??
+                  (numericPoints > 0
+                    ? `+${numericPoints} Reward`
+                    : numericPoints < 0
+                      ? `${numericPoints} Penalty`
+                      : "0 Points")}
               </span>
             </div>
 
