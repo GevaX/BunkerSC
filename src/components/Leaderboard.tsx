@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Trophy, Search, ChevronRight } from "lucide-react";
-import type { LeaderboardEntry } from "../types";
+import type { LeaderboardEntry, Program } from "../types";
+import { ProgramBadge } from "./ui/ProgramBadge";
+
+type ProgramFilter = "ALL" | Program;
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[];
@@ -11,9 +14,20 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   entries,
   onSelectMember,
 }) => {
+  const [programFilter, setProgramFilter] = useState<ProgramFilter>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredEntries = entries.filter((entry) => {
+  const programFiltered = entries.filter((entry) => {
+    if (programFilter === "ALL") return true;
+    return entry.program === programFilter;
+  });
+
+  const rankedEntries = programFiltered.map((entry, index) => ({
+    ...entry,
+    displayRank: programFilter === "ALL" ? entry.rank : index + 1,
+  }));
+
+  const filteredEntries = rankedEntries.filter((entry) => {
     if (searchQuery.trim()) {
       return entry.name.toLowerCase().includes(searchQuery.toLowerCase());
     }
@@ -38,16 +52,51 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
           </div>
         </div>
 
-        {/* Search */}
-        <div className="relative">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search member..."
-            className="w-full sm:w-60 pl-8 pr-3 py-1.5 text-xs rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-700"
-          />
+        {/* Filters & Search */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs">
+            <button
+              onClick={() => setProgramFilter("ALL")}
+              className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
+                programFilter === "ALL"
+                  ? "bg-zinc-800 text-zinc-100"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setProgramFilter("FRC")}
+              className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
+                programFilter === "FRC"
+                  ? "bg-cyan-950/70 text-cyan-300 border border-cyan-800/60"
+                  : "text-zinc-400 hover:text-cyan-300/80"
+              }`}
+            >
+              FRC
+            </button>
+            <button
+              onClick={() => setProgramFilter("FLL")}
+              className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
+                programFilter === "FLL"
+                  ? "bg-red-950/70 text-red-300 border border-red-800/60"
+                  : "text-zinc-400 hover:text-red-300/80"
+              }`}
+            >
+              FLL
+            </button>
+          </div>
+
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search member..."
+              className="w-full sm:w-48 pl-8 pr-3 py-1.5 text-xs rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-700"
+            />
+          </div>
         </div>
       </div>
 
@@ -59,9 +108,9 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       ) : (
         <div className="space-y-2">
           {filteredEntries.map((entry) => {
-            const isFirst = entry.rank === 1;
-            const isSecond = entry.rank === 2;
-            const isThird = entry.rank === 3;
+            const isFirst = entry.displayRank === 1;
+            const isSecond = entry.displayRank === 2;
+            const isThird = entry.displayRank === 3;
             const isScorePos = entry.score > 0;
             const isScoreNeg = entry.score < 0;
 
@@ -97,17 +146,18 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       </div>
                     ) : (
                       <span className="font-mono font-bold text-sm text-zinc-500 group-hover:text-zinc-300 transition">
-                        #{entry.rank}
+                        #{entry.displayRank}
                       </span>
                     )}
                   </div>
 
-                  {/* Member Name */}
+                  {/* Member Name & Program */}
                   <div className="min-w-0">
                     <div className="flex items-center space-x-2">
                       <span className="font-bold text-sm sm:text-base text-zinc-100 truncate group-hover:text-emerald-400 transition">
                         {entry.name}
                       </span>
+                      <ProgramBadge program={entry.program} />
                     </div>
                   </div>
                 </div>

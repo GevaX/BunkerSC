@@ -5,6 +5,7 @@ import type {
   Transaction,
   LeaderboardEntry,
   SubmitPointInput,
+  Program,
 } from "../types";
 
 // ==========================================
@@ -18,7 +19,7 @@ export async function fetchUsers(): Promise<User[]> {
 
   const { data, error } = await supabase
     .from("users")
-    .select("id, name")
+    .select("id, name, program")
     .order("name", { ascending: true });
 
   if (error) {
@@ -36,7 +37,7 @@ export async function fetchTransactions(): Promise<Transaction[]> {
   const { data, error } = await supabase
     .from("transactions")
     .select(
-      "id, recipient_id, sender, points, awarded_points, reason, status, created_at, users(name)",
+      "id, recipient_id, sender, points, awarded_points, reason, status, created_at, users(name, program)",
     )
     .order("created_at", { ascending: false });
 
@@ -55,6 +56,7 @@ export async function fetchTransactions(): Promise<Transaction[]> {
     status: row.status,
     created_at: row.created_at,
     recipient_name: row.users?.name || "Unknown",
+    recipient_program: (row.users?.program as Program) || "Unknown",
   }));
 }
 
@@ -65,7 +67,7 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
 
   const { data, error } = await supabase
     .from("leaderboard")
-    .select("id, name, score, rank")
+    .select("id, name, program, score, rank")
     .order("rank", { ascending: true });
 
   if (error) {
@@ -171,13 +173,17 @@ export async function batchUpdateTransactionStatus(
   }
 }
 
-export async function addUser(name: string): Promise<User> {
+export async function addUser(
+  name: string,
+  program: Program = "FLL",
+): Promise<User> {
   const cleanName = name.trim();
   if (!cleanName) throw new Error("Name cannot be empty");
 
   const data = await callAdminAction({
     action: "add_user",
     userName: cleanName,
+    userProgram: program,
   });
   return data.data as User;
 }

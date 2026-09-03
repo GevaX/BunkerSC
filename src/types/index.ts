@@ -1,6 +1,9 @@
+export type Program = "FLL" | "FRC";
+
 export interface User {
   id: string;
   name: string;
+  program: Program;
 }
 
 export type TransactionStatus = "pending" | "approved" | "rejected";
@@ -16,11 +19,13 @@ export interface Transaction {
   created_at: string;
   // Denormalized/joined field for UI convenience
   recipient_name?: string;
+  recipient_program?: Program;
 }
 
 export interface LeaderboardEntry {
   id: string;
   name: string;
+  program: Program;
   score: number;
   rank: number;
 }

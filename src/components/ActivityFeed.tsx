@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { formatRelativeTime } from "../services/utils";
 import type { Transaction } from "../types";
+import { ProgramBadge } from "./ui/ProgramBadge";
 
 interface ActivityFeedProps {
   transactions: Transaction[];
@@ -137,10 +138,11 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
                       }
                       className="text-sm font-extrabold text-zinc-100 hover:text-emerald-400 transition text-left flex items-center gap-1.5 cursor-pointer"
                     >
-                      <span className="w-6 h-6 rounded-lg bg-zinc-800 text-[11px] font-mono flex items-center justify-center text-zinc-300 border border-zinc-700/60">
+                      <span className="w-6 h-6 rounded-lg bg-zinc-800 text-[11px] font-mono flex items-center justify-center text-zinc-300 border border-zinc-700/60 shrink-0">
                         {(tx.recipient_name || "U").charAt(0).toUpperCase()}
                       </span>
                       <span>{tx.recipient_name}</span>
+                      <ProgramBadge program={tx.recipient_program} />
                     </button>
 
                     <div

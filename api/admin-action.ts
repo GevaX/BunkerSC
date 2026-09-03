@@ -15,8 +15,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ success: false, error: "Not authenticated" });
   }
 
-  const { action, transactionId, status, awardedPoints, userId, userName } =
-    req.body || {};
+  const {
+    action,
+    transactionId,
+    status,
+    awardedPoints,
+    userId,
+    userName,
+    userProgram,
+  } = req.body || {};
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -35,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { data, error } = await supabase
         .from("transactions")
         .select(
-          "id, recipient_id, sender, points, awarded_points, reason, status, created_at, users(name)",
+          "id, recipient_id, sender, points, awarded_points, reason, status, created_at, users(name, program)",
         )
         .order("created_at", { ascending: false });
       if (error) {
@@ -54,6 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         status: row.status,
         created_at: row.created_at,
         recipient_name: row.users?.name || "Unknown",
+        recipient_program: row.users?.program || "Unknown",
       }));
 
       return res.status(200).json({ success: true, data: transactions });
@@ -96,9 +104,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (action === "add_user" && userName) {
+      const program = userProgram ?? "FLL";
       const { data, error } = await supabase
         .from("users")
-        .insert({ name: userName.trim() })
+        .insert({ name: userName.trim(), program })
         .select()
         .single();
       if (error) throw error;

@@ -11,6 +11,7 @@ import {
 import type { User } from "../types";
 import { submitPointRequest } from "../services/api";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { ProgramBadge } from "./ui/ProgramBadge";
 
 interface SubmitPointModalProps {
   isOpen: boolean;
@@ -178,9 +179,10 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
                     <ComboboxItem
                       key={u.id}
                       value={u}
-                      className="text-zinc-100 text-sm rounded-lg data-highlighted:bg-emerald-500/15 data-highlighted:text-emerald-300"
+                      className="text-zinc-100 text-sm rounded-lg data-highlighted:bg-emerald-500/15 data-highlighted:text-emerald-300 flex items-center justify-between"
                     >
-                      {u.name}
+                      <span>{u.name}</span>
+                      <ProgramBadge program={u.program} />
                     </ComboboxItem>
                   )}
                 </ComboboxList>

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import type { User, Transaction } from "../../types";
+import type { User, Transaction, Program } from "../../types";
 import {
   updateTransactionStatus,
   batchUpdateTransactionStatus,
@@ -130,11 +130,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
-  const handleAddMember = async (name: string) => {
+  const handleAddMember = async (name: string, program: Program) => {
     try {
-      await addUser(name);
+      await addUser(name, program);
       await onRefreshData();
-      showToast(`Added "${name}" to group roster.`);
+      showToast(`Added "${name}" (${program}) to group roster.`);
     } catch (err: any) {
       if (err?.status === 401) return handleSessionExpired();
       alert(`Error adding member: ${err.message}`);

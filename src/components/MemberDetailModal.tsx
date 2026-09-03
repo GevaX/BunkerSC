@@ -10,6 +10,7 @@ import {
 import type { LeaderboardEntry, Transaction } from "../types";
 import { formatDate } from "../services/utils";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { ProgramBadge } from "./ui/ProgramBadge";
 
 interface MemberDetailModalProps {
   member: LeaderboardEntry | null;
@@ -47,6 +48,7 @@ export const MemberDetailModal: React.FC<MemberDetailModalProps> = ({
                 <h2 className="text-xl font-bold text-zinc-100">
                   {member.name}
                 </h2>
+                <ProgramBadge program={member.program} size="md" />
                 <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
                   Rank #{member.rank}
                 </span>

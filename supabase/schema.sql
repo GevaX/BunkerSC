@@ -10,7 +10,8 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- Stores group participants (~20 members)
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL UNIQUE
+  name TEXT NOT NULL UNIQUE,
+  program TEXT NOT NULL DEFAULT 'FLL' CHECK (program IN ('FLL', 'FRC'))
 );
 
 -- 2. TRANSACTIONS TABLE
@@ -55,6 +56,7 @@ CREATE OR REPLACE VIEW public.leaderboard AS
 SELECT
   u.id,
   u.name,
+  u.program,
   COALESCE(
     SUM(COALESCE(t.awarded_points, t.points)) FILTER (WHERE t.status = 'approved'),
     0
@@ -70,4 +72,4 @@ SELECT
 FROM public.users u
 LEFT JOIN public.transactions t
   ON t.recipient_id = u.id
-GROUP BY u.id, u.name;
+GROUP BY u.id, u.name, u.program;
