@@ -52,7 +52,7 @@ CREATE POLICY "Public insert pending transactions"
 
 -- LEADERBOARD VIEW
 
-CREATE OR REPLACE VIEW public.leaderboard AS
+CREATE OR REPLACE VIEW public.leaderboard WITH (security_invoker = true) AS
 SELECT
   u.id,
   u.name,
