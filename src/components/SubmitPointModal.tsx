@@ -229,9 +229,14 @@ export const SubmitPointModal: React.FC<SubmitPointModalProps> = ({
 
             <div className="relative">
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="-?[0-9]+"
                 value={points}
-                onChange={(e) => setPoints(e.target.value)}
+                onChange={(e) => {
+                  e.target.value = e.target.value.replace(/(?!^-)\D/g, "");
+                  setPoints(e.target.value);
+                }}
                 placeholder="e.g. 100 or -150"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-zinc-100 font-mono text-base font-bold focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
               />
