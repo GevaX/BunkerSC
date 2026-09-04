@@ -13,11 +13,12 @@ export interface Transaction {
   recipient_id: string;
   sender: string;
   points: number;
-  awarded_points?: number;
+  awarded_points: number | null;
   reason: string;
   status: TransactionStatus;
   created_at: string;
-  // Denormalized/joined field for UI convenience
+
+  // Denormalized/joined fields for UI convenience
   recipient_name?: string;
   recipient_program?: Program;
 }

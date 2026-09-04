@@ -55,8 +55,8 @@ export async function fetchTransactions(): Promise<Transaction[]> {
     reason: row.reason,
     status: row.status,
     created_at: row.created_at,
-    recipient_name: row.users?.name || "Unknown",
-    recipient_program: (row.users?.program as Program) || "Unknown",
+    recipient_name: row.users?.name,
+    recipient_program: row.users?.program as Program | undefined,
   }));
 }
 
